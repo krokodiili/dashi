@@ -33,8 +33,6 @@ updateTime()
 <p> 🌞 20.5 </p>
     </div>
     </div>
-  <p> Lovely evening to you! </p>
-  <p class="memo"> TOMORROR RAY TO DAYCARE ON TIME!!! <p>
   <img src="/1.jpg"/>
 </div>
 
@@ -52,6 +50,10 @@ h1, h2, h3 {
  h2 {
   margin: 1rem 0;
   }
+
+h3 {
+  font-size: 1.2rem;
+}
 
 p {
   padding: 0 0.5rem;
@@ -80,13 +82,14 @@ p {
 }
 
 .time {
-  font-size: 7rem;
+  font-size: 5rem;
 }
 
 .weather {
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .weather-item {
