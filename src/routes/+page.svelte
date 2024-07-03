@@ -1,6 +1,65 @@
 <script lang="ts">
+import { onMount } from 'svelte';
+
 let time
 let date
+let lat = 60.1894
+let lon = 24.5984
+let currentWeather
+let weatherPrediction
+
+const ONE_HOUR = 60 * 60 * 1000; // 1 hour in milliseconds
+
+async function getCurrentWeather() {
+  let data = localStorage.getItem('currentWeather');
+  let timestamp = localStorage.getItem('currentWeatherTimestamp');
+
+  if (data && timestamp && (Date.now() - Number(timestamp)) < ONE_HOUR) {
+    return JSON.parse(data);
+  }
+
+
+  console.warn('fetching new data');
+  const url= `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`;
+  const response = await fetch(url);
+  data = await response.json();
+
+  localStorage.setItem('currentWeather', JSON.stringify(processCurrentWeather(data)));
+  localStorage.setItem('currentWeatherTimestamp', Date.now().toString());
+
+  return data;
+}
+
+async function getWeatherPrediction() {
+  let data = localStorage.getItem('weatherPrediction');
+  let timestamp = localStorage.getItem('weatherPredictionTimestamp');
+
+  if (data && timestamp && (Date.now() - Number(timestamp)) < ONE_HOUR) {
+    return JSON.parse(data);
+  }
+
+  console.warn('fetching new data');
+  const url= `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`;
+  const response = await fetch(url);
+  data = await response.json();
+
+  localStorage.setItem('weatherPrediction', JSON.stringify(data));
+  localStorage.setItem('weatherPredictionTimestamp', Date.now().toString());
+
+  return data;
+}
+
+function processCurrentWeather(data) {
+  console.log('datisjee', data)
+  return {
+    temperature: toCelcius(data.main.temp),
+    icon: data.weather[0].icon
+  } 
+}
+
+function toCelcius(kelvin) {
+  return parseFloat((kelvin - 273.15).toFixed(1));
+}
 
 function updateTime() {
   time = new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
@@ -12,7 +71,11 @@ setInterval(() => {
   updateTime()
 }, 5000);
 
-updateTime()
+onMount(async () => {
+  updateTime()
+   weatherPrediction = await getWeatherPrediction()
+   currentWeather = await getCurrentWeather()
+})
 </script>
 
 
@@ -26,7 +89,8 @@ updateTime()
 
   <div class="weather">
   <div class="weather-item">
-  <p> 🌧️ 10.5</p> 
+      <img src={`/weather-icons/${currentWeather?.icon}.png`} alt="weather icon"/>
+  <p> {currentWeather?.temperature}</p> 
     </div>
 
   <div class="weather-item tomorrow">
@@ -93,14 +157,19 @@ p {
 }
 
 .weather-item {
+  display: flex;
+  align-items: center;
   font-family: 'Londrina Shadow', cursive;
   color: black;
-  background-color: white;
+  background-color: #fcfcfc;
   border-radius: 54px;
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 0.4rem;
   & p {
     margin: 0;
+  }
+  & img {
+    width: 40px;
   }
 }
 
@@ -143,6 +212,7 @@ p {
 
 img {
   width: 100%;
+  max-width: 500px;
   height: auto;
 }
 
