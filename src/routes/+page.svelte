@@ -42,15 +42,15 @@ async function getWeatherPrediction() {
   const url= `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`;
   const response = await fetch(url);
   data = await response.json();
+  console.log(data)
 
-  localStorage.setItem('weatherPrediction', JSON.stringify(data));
+  localStorage.setItem('weatherPrediction', JSON.stringify(getNoonPrediction(data.list)));
   localStorage.setItem('weatherPredictionTimestamp', Date.now().toString());
 
   return data;
 }
 
 function processCurrentWeather(data) {
-  console.log('datisjee', data)
   return {
     temperature: toCelcius(data.main.temp),
     icon: data.weather[0].icon
@@ -75,7 +75,21 @@ onMount(async () => {
   updateTime()
    weatherPrediction = await getWeatherPrediction()
    currentWeather = await getCurrentWeather()
+  console.log(weatherPrediction,'moi')
+  console.log(currentWeather,'hei')
 })
+
+function getNoonPrediction(predictions) {
+  const noonPrediction = predictions.find(prediction => {
+    const date = new Date(prediction.dt_txt);
+    return date.getHours() === 12;
+  });
+
+  return {
+    temperature: toCelcius(noonPrediction.main.temp),
+    icon: noonPrediction.weather[0].icon
+  };
+}
 </script>
 
 
@@ -89,14 +103,17 @@ onMount(async () => {
 
   <div class="weather">
   <div class="weather-item">
-      <img src={`/weather-icons/${currentWeather?.icon}.png`} alt="weather icon"/>
+      <img src={currentWeather && `/weather-icons/${currentWeather?.icon}.png`} alt="weather icon"/>
   <p> {currentWeather?.temperature}</p> 
     </div>
+<div class="weather-item">
 
-  <div class="weather-item tomorrow">
-<p> 🌞 20.5 </p>
-    </div>
-    </div>
+      <img src={weatherPrediction && `/weather-icons/${weatherPrediction?.icon}.png`} alt="weather icon"/>
+  <p> {weatherPrediction?.temperature}</p> 
+    </div>    
+
+
+  </div>
   <img src="/1.jpg"/>
 </div>
 
@@ -161,7 +178,7 @@ p {
   align-items: center;
   font-family: 'Londrina Shadow', cursive;
   color: black;
-  background-color: #fcfcfc;
+  background-color: lightyellow;
   border-radius: 54px;
   font-size: 1.5rem;
   padding: 0.4rem;
