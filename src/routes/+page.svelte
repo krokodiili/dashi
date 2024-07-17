@@ -42,7 +42,6 @@ async function getWeatherPrediction() {
   const url= `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`;
   const response = await fetch(url);
   data = await response.json();
-  console.log(data)
 
   localStorage.setItem('weatherPrediction', JSON.stringify(getNoonPrediction(data.list)));
   localStorage.setItem('weatherPredictionTimestamp', Date.now().toString());
@@ -75,8 +74,6 @@ onMount(async () => {
   updateTime()
    weatherPrediction = await getWeatherPrediction()
    currentWeather = await getCurrentWeather()
-  console.log(weatherPrediction,'moi')
-  console.log(currentWeather,'hei')
 })
 
 function getNoonPrediction(predictions) {
@@ -114,7 +111,7 @@ function getNoonPrediction(predictions) {
 
 
   </div>
-  <img src="/1.jpg"/>
+  <img class="image-showcase" src="/1.jpg"/>
 </div>
 
 <style>
@@ -182,6 +179,8 @@ p {
   border-radius: 54px;
   font-size: 1.5rem;
   padding: 0.4rem;
+  box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5);
+
   & p {
     margin: 0;
   }
@@ -227,9 +226,11 @@ p {
   }
 
 
-img {
-  width: 100%;
-  max-width: 500px;
+.image-showcase {
+  box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5);
+  border-radius: 32px;
+  width: 90%;
+  max-width: min(500px, 100vw);
   height: auto;
 }
 
